@@ -38,6 +38,10 @@ class Venue(db.Model):
     phone = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
+    shows = db.relationship('Show', backref='venue', lazy=True)
+
+    def __repr__(self):
+        return f'<Venue id: {self.id}, name: {self.name}, shows: {self.shows}>'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -54,9 +58,34 @@ class Artist(db.Model):
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
 
+    def __repr__(self):
+        return f'<Artist id: {self.id}, name: {self.name}>'
+
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
 # TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+
+
+show_items = db.Table(
+    'show_items',
+    db.Column('show_id', db.Integer, db.ForeignKey(
+        'Show.id'), primary_key=True),
+    db.Column('artist_id', db.Integer, db.ForeignKey(
+        'Artist.id'), primary_key=True)
+)
+
+
+class Show(db.Model):
+    __tablename__ = 'Show'
+
+    id = db.Column(db.Integer, primary_key=True)
+    date_time = db.Column(db.DateTime, nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+    artists = db.relationship(
+        'Artist', secondary=show_items, backref=db.backref('shows', lazy=True))
+
+    def __repr__(self):
+        return f'<Show id: {self.id}, datetime: {self.date_time}'
 
 # ---------------------------------------------------------------------------- #
 # Filters.
@@ -535,7 +564,7 @@ if not app.debug:
 
 # Default port:
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()
 
 # Or specify port manually:
 '''
