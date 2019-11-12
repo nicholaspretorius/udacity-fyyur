@@ -4,14 +4,15 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 import logging
 from logging import Formatter, FileHandler
-from flask_wtf import Form
-from forms import *
+# from flask_wtf import Form
+from forms import ArtistForm, ShowForm, VenueForm
 from flask_migrate import Migrate
+import sys
 # ---------------------------------------------------------------------------- #
 # App Config.
 # ---------------------------------------------------------------------------- #
@@ -291,17 +292,17 @@ def delete_venue(venue_id):
 @app.route('/artists')
 def artists():
     # TODO: replace with real data returned from querying the database
-    data = [{
-        "id": 4,
-        "name": "Guns N Petals",
-    }, {
-        "id": 5,
-        "name": "Matt Quevedo",
-    }, {
-        "id": 6,
-        "name": "The Wild Sax Band",
-    }]
-    return render_template('pages/artists.html', artists=data)
+    # data = [{
+    #     "id": 4,
+    #     "name": "Guns N Petals",
+    # }, {
+    #     "id": 5,
+    #     "name": "Matt Quevedo",
+    # }, {
+    #     "id": 6,
+    #     "name": "The Wild Sax Band",
+    # }]
+    return render_template('pages/artists.html', artists=Artist.query.order_by('id').all())
 
 
 @app.route('/artists/search', methods=['POST'])
@@ -468,15 +469,40 @@ def create_artist_form():
 
 @app.route('/artists/create', methods=['POST'])
 def create_artist_submission():
+    error = False
+    form = ArtistForm()
+    try:
+        print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}')
+        if form.validate_on_submit():
+            artist = Artist(name=form.name.data, city=form.city.data, state=form.state.data,
+                            phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data)
+            db.session.add(artist)
+            db.session.commit()
+            flash('Artist {} was successfully listed!'.format(form.name.data))
+            return redirect(url_for('index'))
+        flash('An error occurred. Artist {} could not be listed. {}'.format(
+            form.name.data, form.errors))
+        print(form.errors)
+    except():
+        db.session.rollback()
+        error = True
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if error:
+        abort(500)
+        flash('There was an error, please try again.')
+    # return redirect('pages/home.html')
     # called upon submitting the new artist listing form
     # TODO: insert form data as a new Venue record in the db, instead
     # TODO: modify data to be the data object returned from db insertion
 
     # on successful db insert, flash success
-    flash('Artist ' + request.form['name'] + ' was successfully listed!')
+    # flash('Artist ' + request.form['name'] + ' was successfully listed!')
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Artist ' + data.name + ' could not be listed.')
-    return render_template('pages/home.html')
+    # return render_template('pages/home.html')
+    return render_template('forms/new_artist.html', form=form)
 
 
 #  Shows
