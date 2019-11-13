@@ -86,6 +86,14 @@ musical_genres_valid = ['Alternative', 'Blues', 'Classical', 'Country', 'Electro
                         'Heavy Metal', 'Instrumental', 'Jazz', 'Musical Theatre', 'Pop', 'Punk', 'R&B', 'Reggae', 'Rock n Roll', 'Soul', 'Other']
 
 
+def genreValidation(form, field):
+    result = all(elem in field.data for elem in musical_genres_valid)
+    if result:
+        return False
+    else:
+        return True
+
+
 class ShowForm(Form):
     artist_id = StringField(
         'artist_id'
@@ -122,7 +130,7 @@ class VenueForm(Form):
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[AnyOf(message='Sorry, you can only choose from the genres provided.', values=musical_genres_valid)],
+        'genres', validators=[DataRequired(), genreValidation],
         choices=musical_genres
     )
     facebook_link = StringField(
@@ -138,8 +146,8 @@ class ArtistForm(Form):
         'city', validators=[DataRequired()]
     )
     state = SelectField(
-        'state', validators=[AnyOf(message='Sorry, you can only choose from the states provided.',
-                                   values=states_valid)],
+        'state', validators=[DataRequired(), AnyOf(message='Sorry, you can only choose from the states provided.',
+                                                   values=states_valid)],
         choices=states
     )
     phone = StringField(
@@ -149,13 +157,6 @@ class ArtistForm(Form):
     image_link = StringField(
         'image_link'
     )
-
-    def genreValidation(form, field):
-        result = all(elem in field.data for elem in musical_genres_valid)
-        if result:
-            return False
-        else:
-            return True
 
     genres = SelectMultipleField(
         # TODO implement enum restriction
