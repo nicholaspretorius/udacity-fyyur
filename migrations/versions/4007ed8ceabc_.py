@@ -7,6 +7,7 @@ Create Date: 2019-11-11 16:19:13.579189
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.dialects.postgresql import ARRAY
 
 
 # revision identifiers, used by Alembic.
@@ -24,25 +25,26 @@ def upgrade():
         'seeking_venue', sa.Boolean(), nullable=True))
     op.add_column('Artist', sa.Column('website', sa.String(), nullable=True))
     op.add_column('Venue', sa.Column(
-        'genres', sa.String(length=120), nullable=True))
+        'genres', ARRAY(sa.String(length=120)), nullable=True))
     op.add_column('Venue', sa.Column(
         'seeking_description', sa.String(), nullable=True))
     op.add_column('Venue', sa.Column(
         'seeking_talent', sa.Boolean(), nullable=True))
     op.add_column('Venue', sa.Column('website', sa.String(), nullable=True))
-
     op.execute(
         'UPDATE "Artist" SET seeking_description = \'\' WHERE seeking_description IS NULL;')
     op.execute(
         'UPDATE "Artist" SET seeking_venue = False WHERE seeking_venue IS NULL;')
     op.execute('UPDATE "Artist" SET website = \'\' WHERE website IS NULL;')
-    op.execute('UPDATE "Artist" SET genres = \'\' WHERE genres IS NULL;')
-    op.execute('UPDATE "Venue" SET genres = \'\' WHERE genres IS NULL;')
     op.execute(
         'UPDATE "Venue" SET seeking_description = \'\' WHERE seeking_description IS NULL;')
     op.execute(
         'UPDATE "Venue" SET seeking_talent = False WHERE seeking_talent IS NULL;')
     op.execute('UPDATE "Venue" SET website = \'\' WHERE website IS NULL;')
+    op.alter_column('Artist', 'genres', type_=ARRAY(sa.String()),
+                    postgresql_using="genres::TEXT[]")
+    op.execute('UPDATE "Artist" SET genres = \'{}\' WHERE genres IS NULL;')
+    op.execute('UPDATE "Venue" SET genres = \'{}\' WHERE genres IS NULL;')
     # ### end Alembic commands ###
 
 
@@ -55,4 +57,6 @@ def downgrade():
     op.drop_column('Artist', 'website')
     op.drop_column('Artist', 'seeking_venue')
     op.drop_column('Artist', 'seeking_description')
+    op.alter_column('Artist', 'genres', type_=sa.String(),
+                    existing_type=ARRAY(sa.String()))
     # ### end Alembic commands ###
