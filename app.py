@@ -49,7 +49,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String)
 
     def __repr__(self):
-        return f'<Venue id: {self.id}, name: {self.name}, shows: {self.shows}>'
+        return f'<Venue id: {self.id}, name: {self.name}, city: {self.city}, state: {self.state}, shows: {self.shows}>'
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -131,28 +131,44 @@ def index():
 def venues():
     # TODO: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
-    data = [{
-        "city": "San Francisco",
-        "state": "CA",
-        "venues": [{
-            "id": 1,
-            "name": "The Musical Hop",
-            "num_upcoming_shows": 0,
-        }, {
-            "id": 3,
-            "name": "Park Square Live Music & Coffee",
-            "num_upcoming_shows": 1,
-        }]
-    }, {
-        "city": "New York",
-        "state": "NY",
-        "venues": [{
-            "id": 2,
-            "name": "The Dueling Pianos Bar",
-            "num_upcoming_shows": 0,
-        }]
-    }]
-    return render_template('pages/venues.html', areas=data)
+    # data = [{
+    #     "city": "San Francisco",
+    #     "state": "CA",
+    #     "venues": [{
+    #         "id": 1,
+    #         "name": "The Musical Hop",
+    #         "num_upcoming_shows": 0,
+    #     }, {
+    #         "id": 3,
+    #         "name": "Park Square Live Music & Coffee",
+    #         "num_upcoming_shows": 1,
+    #     }]
+    # }, {
+    #     "city": "New York",
+    #     "state": "NY",
+    #     "venues": [{
+    #         "id": 2,
+    #         "name": "The Dueling Pianos Bar",
+    #         "num_upcoming_shows": 0,
+    #     }]
+    # }]
+    # Artist.query.order_by('id').all()
+    city_venues = []
+    city_data = Venue.query.with_entities(
+        Venue.city, Venue.state).group_by('city', 'state').all()
+    venue_data = Venue.query.all()
+
+    print(city_data)
+    for c in city_data:
+        venues = []
+        for v in venue_data:
+            if v.city == c.city:
+                venues.append({'id': v.id, 'name': v.name, 'num_upcoming_shows': 0})
+            city = {'city': c.city, 'state': c.state, 'venues': venues}
+        city_venues.append(city)
+
+    print(city_venues)
+    return render_template('pages/venues.html', areas=city_venues)
 
 
 @app.route('/venues/search', methods=['POST'])
