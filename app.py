@@ -558,14 +558,6 @@ def shows():
     # displays list of shows at /shows
     # TODO: replace with real venues data.
     #       num_shows should be aggregated based on number of upcoming shows per venue.
-    # q = (Session.query(User,Document,DocumentPermissions)
-    # .filter(User.email == Document.author)
-    # .filter(Document.name == DocumentPermissions.document)
-    # .filter(User.email == 'someemail')
-    # .all())
-
-    # de_link = s.query(DepartmentEmployeeLink).join(Department).filter(Department.name == 'IT').one()
-    # de_link = s.query(DepartmentEmployeeLink).filter(DepartmentEmployeeLink.extra_data == 'part-time').one()
 
     shows = db.session.query(Show, Venue, show_items, Artist).\
         filter(Show.venue_id == Venue.id).\
@@ -639,9 +631,37 @@ def create_shows():
 def create_show_submission():
     # called to create new shows in the db, upon submitting new show listing form
     # TODO: insert form data as a new Show record in the db, instead
+    error = False
+    form = ShowForm()
+    try:
+        print(f'Artist: {form.artist_id.data}, Venue: {form.venue_id.data}, Time: {form.start_time.data}')
+        if form.validate_on_submit():
+            v_id = int(form.venue_id.data)
+            show = Show(date_time=form.start_time.data, venue_id=v_id)
+            db.session.add(show)
+            db.session.commit()
+            artist = Artist.query.get(form.artist_id.data)
+            venue = Venue.query.get(v_id)
+            show.artists.append(artist)
+            venue.shows.append(show)
+            db.session.add(venue)
+            db.session.commit()
+            flash('Show was successfully listed on {}!'.format(form.start_time.data))
+            return redirect(url_for('index'))
+        flash('An error occurred. Show could not be listed. {}'.format(form.errors))
+        print(form.errors)
+    except():
+        db.session.rollback()
+        error = True
+        print(sys.exc_info())
+    finally:
+        db.session.close()
+    if error:
+        abort(500)
+        flash('There was an error, please try again.')
 
     # on successful db insert, flash success
-    flash('Show was successfully listed!')
+    # flash('Show was successfully listed!')
     # TODO: on unsuccessful db insert, flash an error instead.
     # e.g., flash('An error occurred. Show could not be listed.')
     # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
