@@ -567,15 +567,26 @@ def shows():
     # de_link = s.query(DepartmentEmployeeLink).join(Department).filter(Department.name == 'IT').one()
     # de_link = s.query(DepartmentEmployeeLink).filter(DepartmentEmployeeLink.extra_data == 'part-time').one()
 
-    shows = db.session.query(Show, Venue, show_items, Artist).filter(Show.venue_id == Venue.id).filter(Show.id == show_items.c.show_id).filter(show_items.c.artist_id == Artist.id).all()
+    shows = db.session.query(Show, Venue, show_items, Artist).\
+        filter(Show.venue_id == Venue.id).\
+        filter(Show.id == show_items.c.show_id).\
+        filter(show_items.c.artist_id == Artist.id).\
+        all()
     venue_shows = []
 
     for show in shows:
         # print("Show: ", show.Venue.id)
-        venue_show = {'venue_id': show.Venue.id, "venue_name": show.Venue.name, "artist_id": show.Artist.id, "artist_name": show.Artist.name, "artist_image_link": show.Artist.image_link, "start_time": str(show.Show.date_time)}
+        venue_show = {
+            "venue_id": show.Venue.id,
+            "venue_name": show.Venue.name,
+            "artist_id": show.Artist.id,
+            "artist_name": show.Artist.name,
+            "artist_image_link": show.Artist.image_link,
+            "start_time": str(show.Show.date_time)
+        }
         print("Venue show: ", venue_show)
         venue_shows.append(venue_show)
-   
+
     print("Shows: ", venue_shows)
 
     # data = [{
