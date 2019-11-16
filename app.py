@@ -194,32 +194,18 @@ def show_venue(venue_id):
     # TODO: replace with real venue data from the venues table, using venue_id
     venue = Venue.query.get(venue_id)
 
-    print("Shows: ", shows)
-
     past_shows = []
     upcoming_shows = []
     today = datetime.now()
 
-    # shows = db.session.query(Show, Venue, show_items, Artist).\
-    #     filter(Show.venue_id == Venue.id).\
-    #     filter(Show.id == show_items.c.show_id).\
-    #     filter(show_items.c.artist_id == Artist.id).\
-    #     all()
-    # .with_entities()
-
     for show in venue.shows:
-        # print("Show: ", show)
         artists = db.session.query(show_items, Artist).with_entities(Artist.id, Artist.name, Artist.image_link).\
             filter(show.id == show_items.c.show_id).\
             filter(show_items.c.artist_id == Artist.id).\
             all()
-        # print(type(artists))
-        # print(artists)
+
         value_list = [(x.id, x.name, x.image_link) for x in artists]
         for v in value_list:
-            # print("ID: ", v[0])
-            # print("Name: ", v[1])
-            # print("Image: ", v[2])
             artist = {"artist_id": v[0], "artist_name": v[1], "artist_image_link": v[2], "start_time": str(show.date_time)}
 
             if(show.date_time >= today):
@@ -228,9 +214,6 @@ def show_venue(venue_id):
             else:
                 print("Past")
                 past_shows.append(artist)
-
-    print("Upcoming: ", upcoming_shows)
-    print("Past: ", past_shows)
 
     venue.past_shows = past_shows
     venue.past_shows_count = len(past_shows)
