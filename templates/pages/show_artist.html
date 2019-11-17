@@ -84,7 +84,43 @@ content %}
     {% endfor %}
   </div>
 </section>
-
+<section>
+    <div class="row">
+      <div class="col-sm-12">
+        <a href="/artists/{{ artist.id }}/edit"
+          ><button class="btn btn-primary btn-lg">Edit artist</button></a
+        >
+        <button class="btn btn-default btn-lg" data-id="{{ artist.id }}" id="delete-artist">
+          Delete artist
+        </button>
+      </div>
+    </div>
+  </section>
+  {% block javascript %}
+<script>
+  const del = document.getElementById("delete-artist");
+  del.onclick = function(e) {
+    console.log("Delete: ", e);
+    const artistId = e.target.dataset.id;
+    fetch("/artists/" + artistId, {
+      method: "DELETE"
+    })
+      .then(function(res) {
+        console.log("Res: ", res);
+        return res.json();
+      })
+      .then(function(data) {
+        console.log("Data: ", data);
+        if (data.success === true) {
+          window.location.pathname = "/";
+        }
+      })
+      .catch(function(e) {
+        console.error(e);
+      });
+  };
+</script>
+{% endblock %}
     {% endblock %}
   </div>
 </div>
