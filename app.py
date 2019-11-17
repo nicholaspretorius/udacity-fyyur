@@ -636,10 +636,14 @@ def create_artist_submission():
     error = False
     form = ArtistForm()
     try:
-        print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}')
+        print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}, Seeking Venue:  {form.seeking_venue.data is True} {type(form.seeking_venue.data)}, Seeking desc: {form.seeking_description.data}')
         if form.validate_on_submit():
+            if form.seeking_venue.data == 'True':
+                seeking = True
+            else:
+                seeking = False
             artist = Artist(name=form.name.data, city=form.city.data, state=form.state.data,
-                            phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website="", seeking_description="")
+                            phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data, seeking_venue=seeking, seeking_description=form.seeking_description.data)
             db.session.add(artist)
             db.session.commit()
             flash('Artist {} was successfully listed!'.format(form.name.data))
