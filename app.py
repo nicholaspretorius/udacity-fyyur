@@ -327,8 +327,8 @@ def create_venue_submission():
     try:
         print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Address: {form.address.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}')
         if form.validate_on_submit():
-            venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data, 
-                phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website="", seeking_description="")
+            venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data,
+                                phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data, seeking_talent=form.seeking_talent.data, seeking_description=form.seeking_description.data)
             db.session.add(venue)
             db.session.commit()
             flash('Venue {} was successfully listed!'.format(form.name.data))
