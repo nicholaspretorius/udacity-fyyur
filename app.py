@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------------------- #
 # Imports
 # ---------------------------------------------------------------------------- #
-import json
+# import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort, jsonify
+from flask import Flask, render_template, request, flash, redirect, url_for, abort, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import or_
@@ -72,7 +72,8 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String)
 
     def __repr__(self):
-        return f'<Artist id: {self.id}, name: {self.name} city: {self.city} state: {self.state} phone: {self.phone} genres: {self.genres} image_link: {self.image_link} fb: {self.facebook_link} website: {self.website} s_venue: {self.seeking_venue} s_desc: {self.seeking_description}>'
+        return f'''<Artist id: {self.id}, name: {self.name} city: {self.city} state: {self.state} phone: {self.phone} genres: {self.genres} image_link: {self.image_link}
+        fb: {self.facebook_link} website: {self.website} s_venue: {self.seeking_venue} s_desc: {self.seeking_description}>'''
 
     # TODO: implement any missing fields, as a database migration using Flask-Migrate
 
@@ -189,7 +190,7 @@ def search_venues():
 
     term = request.form.get('search_term')
     search = "%{}%".format(term.lower())
-    res = Venue.query.filter(or_(Venue.name.ilike(search),Venue.state.ilike(search),Venue.city.ilike(search))).\
+    res = Venue.query.filter(or_(Venue.name.ilike(search), Venue.state.ilike(search), Venue.city.ilike(search))).\
         all()
     response = {'count': len(res), 'data': res}
 
@@ -327,10 +328,12 @@ def create_venue_submission():
     error = False
     form = VenueForm()
     try:
-        print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Address: {form.address.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}')
+        print(f'''Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Address: {form.address.data}, Phone: {form.phone.data}, Genres: {form.genres.data},
+        FB: {form.facebook_link.data}''')
         if form.validate_on_submit():
-            venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data,
-                                phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data, seeking_talent=form.seeking_talent.data, seeking_description=form.seeking_description.data)
+            venue = Venue(name=form.name.data, city=form.city.data, state=form.state.data, address=form.address.data, phone=form.phone.data, image_link='',
+                          facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data, seeking_talent=form.seeking_talent.data,
+                          seeking_description=form.seeking_description.data)
             db.session.add(venue)
             db.session.commit()
             flash('Venue {} was successfully listed!'.format(form.name.data))
@@ -667,14 +670,16 @@ def create_artist_submission():
     error = False
     form = ArtistForm()
     try:
-        print(f'Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Phone: {form.phone.data}, Genres: {form.genres.data}, FB: {form.facebook_link.data}, Seeking Venue:  {form.seeking_venue.data is True} {type(form.seeking_venue.data)}, Seeking desc: {form.seeking_description.data}')
+        print(f'''Name: {form.name.data}, City: {form.city.data}, State: {form.state.data}, Phone: {form.phone.data}, Genres: {form.genres.data},
+        FB: {form.facebook_link.data}, Seeking Venue:  {form.seeking_venue.data is True} {type(form.seeking_venue.data)}, Seeking desc: {form.seeking_description.data}''')
         if form.validate_on_submit():
             if form.seeking_venue.data == 'True':
                 seeking = True
             else:
                 seeking = False
             artist = Artist(name=form.name.data, city=form.city.data, state=form.state.data,
-                            phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data, seeking_venue=seeking, seeking_description=form.seeking_description.data)
+                            phone=form.phone.data, image_link='', facebook_link=form.facebook_link.data, genres=form.genres.data, website=form.website.data,
+                            seeking_venue=seeking, seeking_description=form.seeking_description.data)
             db.session.add(artist)
             db.session.commit()
             flash('Artist {} was successfully listed!'.format(form.name.data))
@@ -780,7 +785,8 @@ def shows():
     #     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     #     "start_time": "2035-04-15T20:00:00.000Z"
     # }]
-    return render_template('pages/shows.html', upcoming_shows=upcoming_venue_shows, upcoming_count=len(upcoming_venue_shows), past_shows=reverse_past_venue_shows, past_count=len(past_venue_shows))
+    return render_template('pages/shows.html', upcoming_shows=upcoming_venue_shows, upcoming_count=len(upcoming_venue_shows),
+                           past_shows=reverse_past_venue_shows, past_count=len(past_venue_shows))
 
 
 @app.route('/shows/create')
