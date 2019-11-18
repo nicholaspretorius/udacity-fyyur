@@ -7,7 +7,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-# from sqlalchemy import desc
+from sqlalchemy import or_
 from sqlalchemy.dialects.postgresql import ARRAY
 import logging
 from logging import Formatter, FileHandler
@@ -189,7 +189,8 @@ def search_venues():
 
     term = request.form.get('search_term')
     search = "%{}%".format(term.lower())
-    res = Venue.query.filter(Venue.name.ilike(search)).all()
+    res = Venue.query.filter(or_(Venue.name.ilike(search),Venue.state.ilike(search),Venue.city.ilike(search))).\
+        all()
     response = {'count': len(res), 'data': res}
 
     return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
