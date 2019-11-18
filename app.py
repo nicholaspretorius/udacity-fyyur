@@ -204,27 +204,28 @@ def show_venue(venue_id):
     upcoming_shows = []
     today = datetime.now()
 
-    for show in venue.shows:
-        artists = db.session.query(show_items, Artist).with_entities(Artist.id, Artist.name, Artist.image_link).\
-            filter(show.id == show_items.c.show_id).\
-            filter(show_items.c.artist_id == Artist.id).\
-            all()
+    if hasattr(venue, 'shows'):
+        for show in venue.shows:
+            artists = db.session.query(show_items, Artist).with_entities(Artist.id, Artist.name, Artist.image_link).\
+                filter(show.id == show_items.c.show_id).\
+                filter(show_items.c.artist_id == Artist.id).\
+                all()
 
-        value_list = [(x.id, x.name, x.image_link) for x in artists]
-        for v in value_list:
-            artist = {"artist_id": v[0], "artist_name": v[1], "artist_image_link": v[2], "start_time": str(show.date_time)}
+            value_list = [(x.id, x.name, x.image_link) for x in artists]
+            for v in value_list:
+                artist = {"artist_id": v[0], "artist_name": v[1], "artist_image_link": v[2], "start_time": str(show.date_time)}
 
-            if(show.date_time >= today):
-                print("Upcoming")
-                upcoming_shows.append(artist)
-            else:
-                print("Past")
-                past_shows.append(artist)
+                if(show.date_time >= today):
+                    print("Upcoming")
+                    upcoming_shows.append(artist)
+                else:
+                    print("Past")
+                    past_shows.append(artist)
 
-    venue.past_shows = past_shows
-    venue.past_shows_count = len(past_shows)
-    venue.upcoming_shows = upcoming_shows
-    venue.upcoming_shows_count = len(upcoming_shows)
+        venue.past_shows = past_shows
+        venue.past_shows_count = len(past_shows)
+        venue.upcoming_shows = upcoming_shows
+        venue.upcoming_shows_count = len(upcoming_shows)
 
     # data1 = {
     #     "id": 1,
@@ -492,6 +493,7 @@ def show_artist(artist_id):
     # data = list(filter(lambda d: d['id'] ==
     #                    artist_id, [data1, data2, data3]))[0]
     data = Artist.query.get(artist_id)
+    print("Artist: ", data)
     return render_template('pages/show_artist.html', artist=data)
 
 #  Update
