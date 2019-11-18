@@ -97,7 +97,7 @@ class Show(db.Model):
         'Artist', secondary=show_items, backref=db.backref('shows', lazy=True))
 
     def __repr__(self):
-        return f'<Show id: {self.id}, datetime: {self.date_time}>'
+        return f'<Show id: {self.id}, venue_id: {self.venue_id}, datetime: {self.date_time} artists: {self.artists}>'
 
 # ---------------------------------------------------------------------------- #
 # Filters.
@@ -493,7 +493,33 @@ def show_artist(artist_id):
     # data = list(filter(lambda d: d['id'] ==
     #                    artist_id, [data1, data2, data3]))[0]
     data = Artist.query.get(artist_id)
-    print("Artist: ", data)
+
+    past_shows = []
+    upcoming_shows = []
+    today = datetime.now()
+
+    if hasattr(data, 'shows'):
+        for show in data.shows:
+            venues = db.session.query(Venue).with_entities(Venue.id, Venue.name, Venue.image_link).\
+                filter(show.venue_id == Venue.id).\
+                all()
+
+            value_list = [(x.id, x.name, x.image_link) for x in venues]
+            for v in value_list:
+                venue = {"venue_id": v[0], "venue_name": v[1], "venue_image_link": v[2], "start_time": str(show.date_time)}
+
+                if(show.date_time >= today):
+                    print("Upcoming")
+                    upcoming_shows.append(venue)
+                else:
+                    print("Past")
+                    past_shows.append(venue)
+
+        data.past_shows = past_shows
+        data.past_shows_count = len(past_shows)
+        data.upcoming_shows = upcoming_shows
+        data.upcoming_shows_count = len(upcoming_shows)
+
     return render_template('pages/show_artist.html', artist=data)
 
 #  Update
