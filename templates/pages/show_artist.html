@@ -1,10 +1,20 @@
 {% extends 'layouts/main.html' %} {% block title %}{{ artist.name }} | Artist{% endblock %} {% block
 content %}
+{% if artist == None %}
+<div class="row">
+    <div class="col-sm-6">
+      <h2>No Artist Found.</h2>
+      <p>Unfortunately there is currently no artist with that ID, please try a search for the artist you are looking for</p>
+    </div>
+</div>
+{% endif %}
+{% if artist != None %}
 <div class="row">
   <div class="col-sm-6">
     <h1 class="monospace">
       {{ artist.name }}
     </h1>
+    
     <p class="subtitle">ID: {{ artist.id }}</p>
     <div class="genres">
 			{% for genre in artist.genres %}
@@ -120,7 +130,8 @@ content %}
       });
   };
 </script>
-{% endblock %}
-    {% endblock %}
   </div>
 </div>
+{% endblock %}
+{% endif %}
+    {% endblock %}

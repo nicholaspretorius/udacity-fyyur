@@ -1,4 +1,15 @@
-{% extends 'layouts/main.html' %} {% block title %}Venue Search{% endblock %} {% block content %}
+{% extends 'layouts/main.html' %} {% block title %}Venue Search{% endblock %} {% block content %} {%
+if venue == None %}
+<div class="row">
+  <div class="col-sm-6">
+    <h2>No Venue Found.</h2>
+    <p>
+      Unfortunately there is currently no venue with that ID, please try a search for the venue you
+      are looking for
+    </p>
+  </div>
+</div>
+{% endif %} {% if venue != None %}
 <div class="row">
   <div class="col-sm-6">
     <h1 class="monospace">
@@ -123,4 +134,4 @@
       });
   };
 </script>
-{% endblock %} {% endblock %}
+{% endblock %} {% endif %} {% endblock %}
