@@ -7,6 +7,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, abort, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
+# from sqlalchemy import desc
 from sqlalchemy.dialects.postgresql import ARRAY
 import logging
 from logging import Formatter, FileHandler
@@ -714,11 +715,13 @@ def shows():
         filter(Show.venue_id == Venue.id).\
         filter(Show.id == show_items.c.show_id).\
         filter(show_items.c.artist_id == Artist.id).\
+        order_by(Show.date_time).\
         all()
-    venue_shows = []
+    past_venue_shows = []
+    upcoming_venue_shows = []
+    today = datetime.now()
 
     for show in shows:
-        # print("Show: ", show.Venue.id)
         venue_show = {
             "venue_id": show.Venue.id,
             "venue_name": show.Venue.name,
@@ -728,10 +731,17 @@ def shows():
             "start_time": str(show.Show.date_time)
         }
         print("Venue show: ", venue_show)
-        venue_shows.append(venue_show)
 
-    print("Shows: ", venue_shows)
+        if show.Show.date_time > today:
+            upcoming_venue_shows.append(venue_show)
+        else:
+            past_venue_shows.append(venue_show)
 
+    print("Upcoming Shows: ", upcoming_venue_shows)
+
+    reverse_past_venue_shows = sorted(past_venue_shows, key=lambda x: datetime.strptime(x['start_time'], '%Y-%m-%d %H:%M:%S'), reverse=True)
+
+    print("Past Shows: ", reverse_past_venue_shows)
     # data = [{
     #     "venue_id": 1,
     #     "venue_name": "The Musical Hop",
@@ -768,7 +778,7 @@ def shows():
     #     "artist_image_link": "https://images.unsplash.com/photo-1558369981-f9ca78462e61?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=794&q=80",
     #     "start_time": "2035-04-15T20:00:00.000Z"
     # }]
-    return render_template('pages/shows.html', shows=venue_shows)
+    return render_template('pages/shows.html', upcoming_shows=upcoming_venue_shows, upcoming_count=len(upcoming_venue_shows), past_shows=reverse_past_venue_shows, past_count=len(past_venue_shows))
 
 
 @app.route('/shows/create')
