@@ -1,5 +1,4 @@
 ## Fyyur
------
 
 ### Introduction
 
@@ -32,5 +31,5 @@ To run the app:
 * `pip install -r requirements.txt` to install dependencies
 * `export FLASK_ENV=development` to put app in debug mode [Optional]
 * `python3 app.py` to run the app (http://127.0.0.1:5000/ or http://localhost:5000)
-* Press Ctrl + C to quite the app
+* Press Ctrl + C to quit the running app
 * `deactivate` de-activate the venv when you are done
